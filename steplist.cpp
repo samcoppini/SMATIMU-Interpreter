@@ -1,5 +1,15 @@
 #include "steplist.hpp"
+#include "string-things.hpp"
 #include <iostream>
+
+StepList::Step::Step(int step_num, const std::string &str): step_num(step_num) {
+    auto tokens = split_tokens(str);
+    if (tokens == tok_list{"output", "this", "block's", "position"}) {
+        command = Output{};
+    } else {
+        command = Nop{};
+    }
+}
 
 // Adds a step to the steplist, returning whether a step with that number
 // already exists in the list
@@ -18,9 +28,11 @@ bool StepList::add_step(int step_num, std::string step_text) {
     return false;
 }
 
-// Prints out the steps in the list
-void StepList::print() const {
+// Executes the instructions
+void StepList::execute() {
     for (auto &step: steps) {
-        std::cout << step.step_num << " " << step.step_text << "\n";
+        if (std::get_if<Step::Output>(&step.command)) {
+            std::wcout << (wchar_t) step.step_num;
+        }
     }
 }

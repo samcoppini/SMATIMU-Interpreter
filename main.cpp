@@ -4,6 +4,8 @@
 #include <iostream>
 #include <optional>
 
+// Returns a step list with steps from the file, returning nothing if there is
+// a syntax error in the file.
 std::optional<StepList> get_steps(std::ifstream &file) {
     std::string line;
     StepList steps;
@@ -41,7 +43,7 @@ std::optional<StepList> get_steps(std::ifstream &file) {
 
         auto step_text = line.substr(step_start + 1, step_end - step_start - 1);
         auto step_num = std::stoi(line.substr(0, step_start));
-        if (steps.add_step(step_num, step_text)) {
+        if (steps.add_step(step_num, to_lower(step_text))) {
             std::cerr << "Error! Step " << step_num
                       << " is defined multiple times.\n";
             return std::nullopt;
@@ -64,7 +66,7 @@ int main(int argc, char *argv[]) {
         return 1;
     }
     if (auto steps = get_steps(file)) {
-        steps->print();
+        steps->execute();
         return 0;
     } else {
         return 1;
