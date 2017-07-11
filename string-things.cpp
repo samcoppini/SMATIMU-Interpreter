@@ -42,3 +42,19 @@ tok_list split_tokens(const std::string &str) {
 
     return tokens;
 }
+
+// Returns whether two lists of tokens are the same, where empty strings in the
+// second token list are allowed to match any token
+bool tokens_match(const tok_list &tokens, const tok_list &to_match) {
+    if (tokens.size() != to_match.size()) {
+        return false;
+    }
+    for (unsigned i = 0; i < tokens.size(); i++) {
+        if (to_match[i].size() != 0) {
+            if (to_match[i] != tokens[i]) {
+                return false;
+            }
+        }
+    }
+    return true;
+}

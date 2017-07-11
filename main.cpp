@@ -43,7 +43,7 @@ std::optional<StepList> get_steps(std::ifstream &file) {
 
         auto step_text = line.substr(step_start + 1, step_end - step_start - 1);
         auto step_num = std::stoi(line.substr(0, step_start));
-        if (steps.add_step(step_num, to_lower(step_text))) {
+        if (not steps.add_step(step_num, to_lower(step_text))) {
             std::cerr << "Error! Step " << step_num
                       << " is defined multiple times.\n";
             return std::nullopt;
@@ -52,7 +52,7 @@ std::optional<StepList> get_steps(std::ifstream &file) {
         cur_line++;
     }
 
-    return steps;
+    return std::move(steps);
 }
 
 int main(int argc, char *argv[]) {
