@@ -161,5 +161,11 @@ void StepList::execute() {
                 vars[set->name] = set_val;
             }
         }
+        else if (auto replace = std::get_if<Step::Replace>(&node->step->command)) {
+            auto to_replace = replace->to_replace.get_step(vars, cur_step);
+            if (to_replace != INVALID_STEP) {
+                *get_step(to_replace) = *replace->new_step;
+            }
+        }
     }
 }
