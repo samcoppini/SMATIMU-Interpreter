@@ -10,10 +10,14 @@ class Step {
         struct Swap {
             StepValue step1, step2;
         };
+        struct Set {
+            std::string name;
+            StepValue new_val;
+        };
         struct Output {};
         struct Nop {};
 
-        std::variant<Nop, Output, Swap> command;
+        std::variant<Nop, Output, Swap, Set> command;
     public:
         Step(const std::string &str);
 };

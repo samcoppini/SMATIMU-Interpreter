@@ -130,18 +130,21 @@ void StepList::swap_steps(int swap1, int swap2) {
 // Executes the instructions
 void StepList::execute() {
     auto node = top_left;
+    var_map vars;
+
     while (node->down) {
         node = node->down;
     }
     while (node->right) {
         node = node->right;
+        auto cur_step = node->step_num;
+
         if (std::get_if<Step::Output>(&node->step->command)) {
             std::wcout << (wchar_t) node->step_num;
         }
         else if (auto swap = std::get_if<Step::Swap>(&node->step->command)) {
-            auto cur_step = node->step_num;
-            auto swap1 = swap->step1.get_step(cur_step);
-            auto swap2 = swap->step2.get_step(cur_step);
+            auto swap1 = swap->step1.get_step(vars, cur_step);
+            auto swap2 = swap->step2.get_step(vars, cur_step);
 
             if (swap1 != INVALID_STEP and swap2 != INVALID_STEP) {
                 swap_steps(swap1, swap2);
@@ -150,6 +153,12 @@ void StepList::execute() {
                 } else if (cur_step == swap2) {
                     node = get_node(swap1);
                 }
+            }
+        }
+        else if (auto set = std::get_if<Step::Set>(&node->step->command)) {
+            auto set_val = set->new_val.get_step(vars, cur_step);
+            if (set_val != INVALID_STEP) {
+                vars[set->name] = set_val;
             }
         }
     }

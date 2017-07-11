@@ -9,6 +9,8 @@ Step::Step(const std::string &str) {
         command = Output{};
     } else if (tokens_match(tokens, {"swap", "", "with", ""})) {
         command = Swap{tokens[1], tokens[3]};
+    } else if (tokens_match(tokens, {"set", "", "to", ""})) {
+        command = Set{tokens[1], tokens[3]};
     } else {
         command = Nop{};
     }
