@@ -140,12 +140,16 @@ void StepList::execute() {
         }
         else if (auto swap = std::get_if<Step::Swap>(&node->step->command)) {
             auto cur_step = node->step_num;
-            auto swap1 = swap->step1, swap2 = swap->step2;
-            swap_steps(swap1, swap2);
-            if (cur_step == swap1) {
-                node = get_node(swap2);
-            } else if (cur_step == swap2) {
-                node = get_node(swap1);
+            auto swap1 = swap->step1.get_step(cur_step);
+            auto swap2 = swap->step2.get_step(cur_step);
+
+            if (swap1 != INVALID_STEP and swap2 != INVALID_STEP) {
+                swap_steps(swap1, swap2);
+                if (cur_step == swap1) {
+                    node = get_node(swap2);
+                } else if (cur_step == swap2) {
+                    node = get_node(swap1);
+                }
             }
         }
     }
