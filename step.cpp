@@ -11,7 +11,7 @@ Step::Step(const tok_list &tokens) {
         command = RangeSwap{tokens[1], tokens[3], tokens[5], tokens[7]};
     } else if (tokens_match(tokens, {"set", "", "to", ""})) {
         command = Set{tokens[1], tokens[3]};
-    } else if (tokens.size() > 3 and tokens[0] == "replace" and tokens[2] == "with") {
+    } else if (tokens.size() > 2 and tokens[0] == "replace" and tokens[2] == "with") {
         tok_list replace_toks{tokens.begin() + 3, tokens.end()};
         command = Replace{tokens[1], std::make_shared<Step>(replace_toks)};
     } else {
