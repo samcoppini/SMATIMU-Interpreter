@@ -12,6 +12,10 @@ class Step {
         struct Swap {
             StepValue step1, step2;
         };
+        struct RangeSwap {
+            StepValue start1, end1;
+            StepValue start2, end2;
+        };
         struct Set {
             std::string name;
             StepValue new_val;
@@ -23,7 +27,7 @@ class Step {
         struct Output {};
         struct Nop {};
 
-        std::variant<Nop, Output, Swap, Set, Replace> command;
+        std::variant<Nop, Output, Swap, RangeSwap, Set, Replace> command;
     public:
         Step(const tok_list &tokens);
         Step(const std::string &str);

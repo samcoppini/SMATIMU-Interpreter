@@ -7,6 +7,8 @@ Step::Step(const tok_list &tokens) {
         command = Output{};
     } else if (tokens_match(tokens, {"swap", "", "with", ""})) {
         command = Swap{tokens[1], tokens[3]};
+    } else if (tokens_match(tokens, {"swap", "", "through", "", "with", "", "through", ""})) {
+        command = RangeSwap{tokens[1], tokens[3], tokens[5], tokens[7]};
     } else if (tokens_match(tokens, {"set", "", "to", ""})) {
         command = Set{tokens[1], tokens[3]};
     } else if (tokens.size() > 3 and tokens[0] == "replace" and tokens[2] == "with") {

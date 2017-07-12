@@ -127,6 +127,34 @@ void StepList::swap_steps(int swap1, int swap2) {
     std::swap(*step1, *step2);
 }
 
+// Swaps a range of steps, unless the two ranges overlap, or they aren't the
+// same length. Returns the new position of step.
+int StepList::swap_range(int start1, int end1, int start2, int end2, int step) {
+    if (start1 > end1) {
+        std::swap(start1, end1);
+    }
+    if (start2 > end2) {
+        std::swap(start2, end2);
+    }
+
+    // Check to see if the ranges to be swapped overlap or are different lengths
+    if ((start1 <= end2 and start2 <= end1) or (end1 - start1 != end2 - start2)) {
+        return step;
+    }
+    int len = end1 - start1 + 1;
+    for (int i = 0; i < len; i++) {
+        swap_steps(start1 + i, start2 + i);
+    }
+
+    if (step >= start1 and step <= end1) {
+        return step - start1 + start2;
+    } else if (step >= start2 and step <= end2) {
+        return step - start2 + start1;
+    } else {
+        return step;
+    }
+}
+
 // Executes the instructions
 void StepList::execute() {
     auto node = top_left;
@@ -152,6 +180,21 @@ void StepList::execute() {
                     node = get_node(swap2);
                 } else if (cur_step == swap2) {
                     node = get_node(swap1);
+                }
+            }
+        }
+        else if (auto range = std::get_if<Step::RangeSwap>(&node->step->command)) {
+            auto start1 = range->start1.get_step(vars, cur_step);
+            auto start2 = range->start2.get_step(vars, cur_step);
+            auto end1 = range->end1.get_step(vars, cur_step);
+            auto end2 = range->end2.get_step(vars, cur_step);
+            if (start1 != INVALID_STEP and start2 != INVALID_STEP and
+                end1 != INVALID_STEP and end2 != INVALID_STEP)
+            {
+                auto old_step = cur_step;
+                cur_step = swap_range(start1, end1, start2, end2, cur_step);
+                if (cur_step != old_step) {
+                    node = get_node(cur_step);
                 }
             }
         }
