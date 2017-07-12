@@ -23,7 +23,9 @@ std::optional<StepList> get_steps(std::ifstream &file) {
                       << " is not blank, but has no step number.\n";
             return std::nullopt;
         }
-        else if (!is_number(line.substr(0, step_start))) {
+        else if (!is_number(line.substr(0, step_start)) or
+                 line.substr(0, step_start) == "0")
+        {
             std::cerr << "Error! \"" << line.substr(0, step_start)
                       << "\" is not a valid line number.\n";
             return std::nullopt;
