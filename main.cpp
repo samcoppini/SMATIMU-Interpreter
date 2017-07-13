@@ -10,8 +10,10 @@ std::optional<StepList> get_steps(std::ifstream &file) {
     std::string line;
     StepList steps;
 
-    int cur_line = 1;
+    int cur_line = 0;
     while (std::getline(file, line)) {
+        cur_line++;
+        
         line = strip_whitespace(line);
 
         if (line.length() == 0)
@@ -50,8 +52,6 @@ std::optional<StepList> get_steps(std::ifstream &file) {
                       << " is defined multiple times.\n";
             return std::nullopt;
         }
-
-        cur_line++;
     }
 
     return std::move(steps);
