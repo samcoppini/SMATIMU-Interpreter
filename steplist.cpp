@@ -157,12 +157,9 @@ int StepList::swap_range(int start1, int end1, int start2, int end2, int step) {
 
 // Executes the instructions
 void StepList::execute() {
-    auto node = top_left;
+    auto node = get_node(INT_MIN);
     var_map vars;
 
-    while (node->down) {
-        node = node->down;
-    }
     while (node->right) {
         node = node->right;
         auto cur_step = node->step_num;
