@@ -141,6 +141,7 @@ int StepList::swap_range(int start1, int end1, int start2, int end2, int step) {
     if ((start1 <= end2 and start2 <= end1) or (end1 - start1 != end2 - start2)) {
         return step;
     }
+
     int len = end1 - start1 + 1;
     for (int i = 0; i < len; i++) {
         swap_steps(start1 + i, start2 + i);
@@ -155,6 +156,55 @@ int StepList::swap_range(int start1, int end1, int start2, int end2, int step) {
     }
 }
 
+// Executes a step node, returning the location of the step after its execution
+int StepList::execute_step(var_map &vars, const StepNode *node) {
+    auto cur_step = node->step_num;
+    auto command = &node->step->command;
+
+    if (std::get_if<Step::Output>(command)) {
+        std::wcout << (wchar_t) node->step_num;
+    }
+    else if (auto swap = std::get_if<Step::Swap>(command)) {
+        auto swap1 = swap->step1.get_step(vars, cur_step);
+        auto swap2 = swap->step2.get_step(vars, cur_step);
+
+        if (swap1 != INVALID_STEP and swap2 != INVALID_STEP) {
+            swap_steps(swap1, swap2);
+            if (cur_step == swap1) {
+                return swap2;
+            } else if (cur_step == swap2) {
+                return swap1;
+            }
+        }
+    }
+    else if (auto range = std::get_if<Step::RangeSwap>(command)) {
+        auto start1 = range->start1.get_step(vars, cur_step);
+        auto start2 = range->start2.get_step(vars, cur_step);
+        auto end1 = range->end1.get_step(vars, cur_step);
+        auto end2 = range->end2.get_step(vars, cur_step);
+
+        if (start1 != INVALID_STEP and end1 != INVALID_STEP and
+            start2 != INVALID_STEP and end2 != INVALID_STEP)
+        {
+            return swap_range(start1, end1, start2, end2, cur_step);
+        }
+    }
+    else if (auto set = std::get_if<Step::Set>(command)) {
+        auto set_val = set->new_val.get_step(vars, cur_step);
+        if (set_val != INVALID_STEP) {
+            vars[set->name] = set_val;
+        }
+    }
+    else if (auto replace = std::get_if<Step::Replace>(&node->step->command)) {
+        auto to_replace = replace->to_replace.get_step(vars, cur_step);
+        if (to_replace != INVALID_STEP) {
+            *get_step(to_replace) = *replace->new_step;
+        }
+    }
+
+    return cur_step;
+}
+
 // Executes the instructions
 void StepList::execute() {
     auto node = get_node(INT_MIN);
@@ -162,50 +212,10 @@ void StepList::execute() {
 
     while (node->right) {
         node = node->right;
-        auto cur_step = node->step_num;
-
-        if (std::get_if<Step::Output>(&node->step->command)) {
-            std::wcout << (wchar_t) node->step_num;
-        }
-        else if (auto swap = std::get_if<Step::Swap>(&node->step->command)) {
-            auto swap1 = swap->step1.get_step(vars, cur_step);
-            auto swap2 = swap->step2.get_step(vars, cur_step);
-
-            if (swap1 != INVALID_STEP and swap2 != INVALID_STEP) {
-                swap_steps(swap1, swap2);
-                if (cur_step == swap1) {
-                    node = get_node(swap2);
-                } else if (cur_step == swap2) {
-                    node = get_node(swap1);
-                }
-            }
-        }
-        else if (auto range = std::get_if<Step::RangeSwap>(&node->step->command)) {
-            auto start1 = range->start1.get_step(vars, cur_step);
-            auto start2 = range->start2.get_step(vars, cur_step);
-            auto end1 = range->end1.get_step(vars, cur_step);
-            auto end2 = range->end2.get_step(vars, cur_step);
-            if (start1 != INVALID_STEP and start2 != INVALID_STEP and
-                end1 != INVALID_STEP and end2 != INVALID_STEP)
-            {
-                auto old_step = cur_step;
-                cur_step = swap_range(start1, end1, start2, end2, cur_step);
-                if (cur_step != old_step) {
-                    node = get_node(cur_step);
-                }
-            }
-        }
-        else if (auto set = std::get_if<Step::Set>(&node->step->command)) {
-            auto set_val = set->new_val.get_step(vars, cur_step);
-            if (set_val != INVALID_STEP) {
-                vars[set->name] = set_val;
-            }
-        }
-        else if (auto replace = std::get_if<Step::Replace>(&node->step->command)) {
-            auto to_replace = replace->to_replace.get_step(vars, cur_step);
-            if (to_replace != INVALID_STEP) {
-                *get_step(to_replace) = *replace->new_step;
-            }
+        auto old_step = node->step_num;
+        auto new_step = execute_step(vars, node);
+        if (old_step != new_step) {
+            node = get_node(new_step);
         }
     }
 }
