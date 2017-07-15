@@ -13,7 +13,7 @@ std::optional<StepList> get_steps(std::ifstream &file) {
     int cur_line = 0;
     while (std::getline(file, line)) {
         cur_line++;
-        
+
         line = strip_whitespace(line);
 
         if (line.length() == 0)
@@ -58,17 +58,44 @@ std::optional<StepList> get_steps(std::ifstream &file) {
 }
 
 int main(int argc, char *argv[]) {
-    if (argc < 2) {
+    bool debug_mode = false;
+    std::string file_name;
+
+    for (int i = 1; i < argc; i++) {
+        std::string arg{argv[i]};
+        if (arg[0] == '-') {
+            if (arg == "--debug" or arg == "-d") {
+                debug_mode = true;
+            } else {
+                std::cerr << "Unknown command line argument \"" << arg << "\".\n";
+                return 1;
+            }
+        } else {
+            if (file_name != "") {
+                std::cerr << "Please provide only one SMATIMU file at a time.\n";
+                return 1;
+            } else {
+                file_name = arg;
+            }
+        }
+    }
+
+    if (file_name == "") {
         std::cerr << "Please provide a SMATIMU file to use the interpreter.\n";
         return 1;
     }
-    std::ifstream file{argv[1]};
+
+    std::ifstream file{file_name};
     if (!file.is_open()) {
         std::cerr << "Unable to open \"" << argv[1] << "\".\n";
         return 1;
     }
     if (auto steps = get_steps(file)) {
-        steps->execute();
+        if (debug_mode) {
+            steps->execute_with_debugger();
+        } else {
+            steps->execute();
+        }
         return 0;
     } else {
         return 1;

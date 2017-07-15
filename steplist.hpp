@@ -28,6 +28,7 @@ class StepList {
         int swap_range(int start1, int end1, int start2, int end2, int step);
         int execute_step(var_map &vars, const StepNode *node);
         void execute();
+        void execute_with_debugger();
 };
 
 #endif

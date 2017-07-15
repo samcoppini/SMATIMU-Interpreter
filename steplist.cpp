@@ -4,6 +4,7 @@
 #include <climits>
 #include <iostream>
 #include <random>
+#include <set>
 #include <utility>
 #include <vector>
 
@@ -218,4 +219,97 @@ void StepList::execute() {
             node = get_node(new_step);
         }
     }
+}
+
+void StepList::execute_with_debugger() {
+    auto node = get_node(INT_MIN);
+    std::set<int> breakpoints;
+    std::string command, last_command;
+    bool paused = true, output_cur_line = true;
+    var_map vars;
+
+    std::wcout << "Welcome to the SMATIMU debugger.\n"
+               << "Type \"help\" for a list of commands.\n";
+
+    if (not node->right) {
+        std::wcout << "No instructions loaded.\n";
+    }
+
+    auto do_step = [&] () {
+        node = node->right;
+        auto old_step = node->step_num;
+        auto new_step = execute_step(vars, node);
+        if (old_step != new_step) {
+            node = get_node(new_step);
+        }
+    };
+
+    while (node->right) {
+        if (output_cur_line) {
+            std::cout << node->right->step_num << ". "
+                      << static_cast<std::string>(*node->right->step) << "\n";
+        }
+        output_cur_line = true;
+        std::cout << ">> ";
+        std::getline(std::cin, command);
+        if (command == "") {
+            command = last_command;
+        }
+        auto toks = split_tokens(command);
+        if (tokens_match(toks, {"help"}) or tokens_match(toks, {"h"})) {
+            output_cur_line = false;
+            std::cout << "help, h               Output this help screen\n"
+                      << "continue, c           Resume program execution\n"
+                      << "break [n], b [n]      Add a breakpoint on a given step\n"
+                      << "print [n], p [n]      Print out a given step\n"
+                      << "step, s               Execute a single step of the program\n"
+                      << "quit, q               Exit the interpreter\n";
+        }
+        else if (tokens_match(toks, {"continue"}) or tokens_match(toks, {"c"})) {
+            paused = false;
+        } else if (tokens_match(toks, {"quit"}) or tokens_match(toks, {"q"})) {
+            return;
+        } else if (tokens_match(toks, {"step"}) or tokens_match(toks, {"s"})) {
+            do_step();
+        } else if (tokens_match(toks, {"break", ""}) or tokens_match(toks, {"b", ""})) {
+            output_cur_line = false;
+            StepValue step_val{toks[1]};
+            auto step_num = step_val.get_step(vars, node->right->step_num);
+            if (step_num == INVALID_STEP) {
+                std::cout << "Undefined variable!\n";
+            } else {
+                breakpoints.insert(step_num);
+                std::cout << "Breakpoint added for step " << step_num << ".\n";
+            }
+        } else if (tokens_match(toks, {"print", ""}) or tokens_match(toks, {"p", ""})) {
+            output_cur_line = false;
+            StepValue step_val{toks[1]};
+            auto step_num = step_val.get_step(vars, node->right->step_num);
+
+            if (step_num == INVALID_STEP) {
+                std::cout << "Undefined variable!\n";
+            } else {
+                auto out_node = get_step(step_num);
+                std::cout << step_num << ". "
+                          << static_cast<std::string>(*out_node) << "\n";
+            }
+        } else {
+            output_cur_line = false;
+            if (strip_whitespace(command).size() > 0) {
+                std::wcout << "Invalid command!\n";
+                continue;
+            }
+        }
+
+        last_command = command;
+
+        while (not paused and node->right) {
+            do_step();
+            if (node->right and breakpoints.count(node->right->step_num)) {
+                paused = true;
+            }
+        }
+    }
+
+    std::wcout << "Program execution ended.\n";
 }

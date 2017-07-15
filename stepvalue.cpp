@@ -46,3 +46,17 @@ int StepValue::get_step(const var_map &vars, int cur_step) const {
         return INVALID_STEP;
     }
 }
+
+StepValue::operator std::string() const {
+    if (auto int_val = std::get_if<int>(&step_val)) {
+        if (is_relative) {
+            return (*int_val >= 0 ? "+": "") + std::to_string(*int_val);
+        } else {
+            return std::to_string(*int_val);
+        }
+    } else if (auto str_val = std::get_if<std::string>(&step_val)) {
+        return *str_val;
+    } else {
+        return "INVALID STEP";
+    }
+}

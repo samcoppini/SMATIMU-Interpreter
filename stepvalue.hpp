@@ -18,6 +18,7 @@ class StepValue {
     public:
         StepValue(const std::string &str);
         int get_step(const var_map &vars, int cur_step) const;
+        operator std::string() const;
 };
 
 #endif
