@@ -1,6 +1,5 @@
 #include "string-things.hpp"
 #include <cctype>
-#include <sstream>
 
 bool is_number(const std::string &str) {
     for (auto &c: str) {
@@ -32,12 +31,22 @@ std::string to_lower(std::string str) {
 
 // Splits up a string into a list of tokens seperated by whitespace
 tok_list split_tokens(const std::string &str) {
-    std::string buffer;
-    std::vector<std::string> tokens;
-    std::stringstream tok_stream{str};
+    tok_list tokens;
+    std::string cur_tok;
 
-    while (tok_stream >> buffer) {
-        tokens.push_back(buffer);
+    for (const auto &c: str) {
+        if (std::isspace(c)) {
+            if (cur_tok.size() > 0) {
+                tokens.push_back(cur_tok);
+                cur_tok = "";
+            }
+        } else {
+            cur_tok += c;
+        }
+    }
+
+    if (cur_tok.size() > 0) {
+        tokens.push_back(cur_tok);
     }
 
     return tokens;
