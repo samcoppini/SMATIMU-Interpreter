@@ -1,3 +1,4 @@
 *.exe
 *.smt
 *.o
+!Sample Programs/*.smt
