@@ -87,7 +87,7 @@ int main(int argc, char *argv[]) {
 
     std::ifstream file{file_name};
     if (!file.is_open()) {
-        std::cerr << "Unable to open \"" << argv[1] << "\".\n";
+        std::cerr << "Unable to open \"" << file_name << "\".\n";
         return 1;
     }
     if (auto steps = get_steps(file)) {
