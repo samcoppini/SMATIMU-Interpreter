@@ -43,7 +43,7 @@ bool coin_flip() {
 
 // Adds a step to the steplist, returning a pointer to the newly-created step,
 // or nullptr if there was already a step in the list with that number
-Step *StepList::add_step(int step_num, std::string step_text) {
+Step *StepList::add_step(int step_num, const std::string &step_text) {
     std::vector<StepNode*> levels;
     auto cur_node = top_left;
 
