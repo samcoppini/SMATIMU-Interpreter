@@ -10,6 +10,20 @@ bool is_number(const std::string &str) {
     return true;
 }
 
+// Returns whether a string contains a valid step value
+bool valid_step_val(const std::string &str) {
+    return is_number(str) or str.size() > 1 or (str[0] != '+' and str[0] != '-');
+}
+
+// Returns whether a string is a valid variable name
+bool valid_var_name(const std::string &str) {
+    if (str[0] == '+' or str[0] == '-') {
+        return not is_number(str.substr(1));
+    } else {
+        return not is_number(str);
+    }
+}
+
 // Removes the whitespace from both ends of a string
 std::string strip_whitespace(const std::string &str) {
     auto str_start = str.find_first_not_of(" \t");

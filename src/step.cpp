@@ -6,14 +6,32 @@ Step::Step(const tok_list &tokens) {
     if (tokens_match(tokens, {"output", "this", "block's", "position"})) {
         command = Output{};
     } else if (tokens_match(tokens, {"swap", "", "with", ""})) {
-        command = Swap{tokens[1], tokens[3]};
+        if (valid_step_val(tokens[1]) and valid_step_val(tokens[3])) {
+            command = Swap{tokens[1], tokens[3]};
+        } else {
+            command = Nop{};
+        }
     } else if (tokens_match(tokens, {"swap", "", "through", "", "with", "", "through", ""})) {
-        command = RangeSwap{tokens[1], tokens[3], tokens[5], tokens[7]};
+        if (valid_step_val(tokens[1]) and valid_step_val(tokens[3]) and
+            valid_step_val(tokens[5]) and valid_step_val(tokens[7]))
+        {
+            command = RangeSwap{tokens[1], tokens[3], tokens[5], tokens[7]};
+        } else {
+            command = Nop{};
+        }
     } else if (tokens_match(tokens, {"set", "", "to", ""})) {
-        command = Set{tokens[1], tokens[3]};
+        if (valid_step_val(tokens[3]) and valid_var_name(tokens[1])) {
+            command = Set{tokens[1], tokens[3]};
+        } else {
+            command = Nop{};
+        }
     } else if (tokens.size() > 2 and tokens[0] == "replace" and tokens[2] == "with") {
-        tok_list replace_toks{tokens.begin() + 3, tokens.end()};
-        command = Replace{tokens[1], std::make_shared<Step>(replace_toks)};
+        if (valid_step_val(tokens[1])) {
+            tok_list replace_toks{tokens.begin() + 3, tokens.end()};
+            command = Replace{tokens[1], std::make_shared<Step>(replace_toks)};
+        } else {
+            command = Nop{};
+        }
     } else {
         command = Nop{};
     }
