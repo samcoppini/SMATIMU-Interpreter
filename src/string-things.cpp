@@ -72,7 +72,7 @@ bool tokens_match(const tok_list &tokens, const tok_list &to_match) {
     if (tokens.size() != to_match.size()) {
         return false;
     }
-    for (unsigned i = 0; i < tokens.size(); i++) {
+    for (std::size_t i = 0; i < tokens.size(); i++) {
         if (to_match[i].size() != 0) {
             if (to_match[i] != tokens[i]) {
                 return false;

@@ -69,7 +69,7 @@ Step *StepList::add_step(int step_num, const std::string &step_text) {
     cur_node->right = new_ptr;
 
     // Grow the tower in the skip list upwards
-    unsigned height = 0;
+    std::size_t height = 0;
     while (height <= levels.size() and coin_flip()) {
         if (height == levels.size()) {
             top_left = new StepNode{INT_MIN, top_left->step, nullptr, top_left};
