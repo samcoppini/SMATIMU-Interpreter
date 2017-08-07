@@ -52,7 +52,7 @@ tok_list split_tokens(const std::string &str) {
         if (std::isspace(c)) {
             if (cur_tok.size() > 0) {
                 tokens.push_back(cur_tok);
-                cur_tok = "";
+                cur_tok.clear();
             }
         } else {
             cur_tok += c;

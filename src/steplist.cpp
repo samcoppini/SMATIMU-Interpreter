@@ -252,7 +252,7 @@ void StepList::execute_with_debugger() {
         output_cur_line = true;
         std::cout << ">> ";
         std::getline(std::cin, command);
-        if (command == "") {
+        if (command.empty()) {
             command = last_command;
         }
         auto toks = split_tokens(command);

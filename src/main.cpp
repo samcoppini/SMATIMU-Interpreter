@@ -71,7 +71,7 @@ int main(int argc, char *argv[]) {
                 return 1;
             }
         } else {
-            if (file_name != "") {
+            if (not file_name.empty()) {
                 std::cerr << "Please provide only one SMATIMU file at a time.\n";
                 return 1;
             } else {
@@ -80,7 +80,7 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    if (file_name == "") {
+    if (file_name.empty()) {
         std::cerr << "Please provide a SMATIMU file to use the interpreter.\n";
         return 1;
     }
