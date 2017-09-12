@@ -57,6 +57,12 @@ std::optional<StepList> get_steps(std::ifstream &file) {
     return std::move(steps);
 }
 
+void print_help(const std::string &prog_name) {
+    std::cout << "Usage: " << prog_name << " [file [--debug] | --help]\n"
+              << "--debug, -d     Execute the program with a GDB-style debugger\n"
+              << "--help, -h      Display this help message\n";
+}
+
 int main(int argc, char *argv[]) {
     bool debug_mode = false;
     std::string file_name;
@@ -66,6 +72,9 @@ int main(int argc, char *argv[]) {
         if (arg[0] == '-') {
             if (arg == "--debug" or arg == "-d") {
                 debug_mode = true;
+            } else if (arg == "--help" or arg == "-h") {
+                print_help(argv[0]);
+                return 0;
             } else {
                 std::cerr << "Unknown command line argument \"" << arg << "\".\n";
                 return 1;
