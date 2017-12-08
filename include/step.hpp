@@ -32,7 +32,6 @@ class Step {
         Step(const tok_list &tokens);
         Step(const std::string &str);
         operator std::string() const;
-        ~Step() {};
 };
 
 #endif
