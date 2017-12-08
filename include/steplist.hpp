@@ -18,10 +18,15 @@ class StepList {
 
         Step *get_step(int step_num);
         StepNode *get_node(int step_num);
+        void delete_nodes();
+        void copy_nodes(const StepList &other);
 
     public:
         StepList();
+        StepList(const StepList &other);
+        StepList& operator=(const StepList &other);
         StepList(StepList &&other);
+        StepList& operator=(StepList &&other);
         ~StepList();
         Step *add_step(int step_num, const std::string &step_text);
         void swap_steps(int step1, int step2);

@@ -12,12 +12,34 @@ StepList::StepList() {
     top_left = new StepNode{INT_MIN, new Step{""}, nullptr, nullptr};
 }
 
+StepList::StepList(const StepList &other) {
+    copy_nodes(other);
+}
+
+StepList& StepList::operator=(const StepList &other) {
+    delete_nodes();
+    copy_nodes(other);
+    return *this;
+}
+
 StepList::StepList(StepList &&other) {
     top_left = other.top_left;
-    other.top_left = nullptr;
+    other.top_left = new StepNode{INT_MIN, new Step{""}, nullptr, nullptr};
+}
+
+StepList& StepList::operator=(StepList &&other) {
+    delete_nodes();
+    top_left = other.top_left;
+    other.top_left = new StepNode{INT_MIN, new Step{""}, nullptr, nullptr};
+    return *this;
 }
 
 StepList::~StepList() {
+    delete_nodes();
+}
+
+// Frees all the nodes in the skiplist
+void StepList::delete_nodes() {
     auto cur_node = top_left;
     while (cur_node) {
         auto next_level = cur_node->down;
@@ -30,6 +52,47 @@ StepList::~StepList() {
             delete temp_ptr;
         }
         cur_node = next_level;
+    }
+}
+
+// Copies all of the nodes present in another skiplist to this skiplist
+void StepList::copy_nodes(const StepList &other) {
+    std::vector<StepNode *> other_left_nodes;
+    std::vector<StepNode *> new_left_nodes;
+    StepNode *cur_node = other.top_left;
+
+    Step *blank_step = new Step{""};
+    while (cur_node) {
+        other_left_nodes.push_back(cur_node);
+        auto new_node = new StepNode{INT_MIN, blank_step, nullptr, nullptr};
+        if (not new_left_nodes.empty()) {
+            new_left_nodes.back()->down = new_node;
+        }
+        new_left_nodes.push_back(new_node);
+        cur_node = cur_node->down;
+    }
+    top_left = new_left_nodes.front();
+    auto height = other_left_nodes.size();
+
+    cur_node = other_left_nodes.back()->right;
+    while (cur_node != nullptr) {
+        Step *new_step = new Step{*cur_node->step};
+        auto step_num = cur_node->step_num;
+        StepNode *prev_node = nullptr;
+
+        for (size_t i = 0; i < height; i++) {
+            auto index = height - 1 - i;
+            auto next_in_line = other_left_nodes[index]->right;
+            if (not next_in_line or next_in_line->step_num != step_num) {
+                break;
+            }
+            auto new_node = new StepNode{step_num, new_step, nullptr, prev_node};
+            new_left_nodes[index]->right = new_node;
+            other_left_nodes[index] = next_in_line;
+            new_left_nodes[index] = new_node;
+            prev_node = new_node;
+        }
+        cur_node = cur_node->right;
     }
 }
 
