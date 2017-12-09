@@ -17,8 +17,10 @@ StepList::StepList(const StepList &other) {
 }
 
 StepList& StepList::operator=(const StepList &other) {
-    delete_nodes();
-    copy_nodes(other);
+    if (this != &other) {
+        delete_nodes();
+        copy_nodes(other);
+    }
     return *this;
 }
 
@@ -28,9 +30,11 @@ StepList::StepList(StepList &&other) {
 }
 
 StepList& StepList::operator=(StepList &&other) {
-    delete_nodes();
-    top_left = other.top_left;
-    other.top_left = new StepNode{INT_MIN, new Step{""}, nullptr, nullptr};
+    if (this != &other) {
+        delete_nodes();
+        top_left = other.top_left;
+        other.top_left = new StepNode{INT_MIN, new Step{""}, nullptr, nullptr};
+    }
     return *this;
 }
 
