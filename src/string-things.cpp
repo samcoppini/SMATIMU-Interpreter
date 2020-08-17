@@ -26,12 +26,12 @@ bool valid_var_name(const std::string &str) {
 
 // Removes the whitespace from both ends of a string
 std::string strip_whitespace(const std::string &str) {
-    auto str_start = str.find_first_not_of(" \t");
+    auto str_start = str.find_first_not_of(" \t\r");
     // Check to see if a string is all whitespace
     if (str_start == std::string::npos) {
         return "";
     }
-    auto str_end = str.find_last_not_of(" \t");
+    auto str_end = str.find_last_not_of(" \t\r");
     return str.substr(str_start, str_end - str_start + 1);
 }
 
