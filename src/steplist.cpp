@@ -317,7 +317,7 @@ void StepList::execute_with_debugger() {
                       << static_cast<std::string>(*node->right->step) << "\n";
         }
         output_cur_line = true;
-        std::cout << ">> ";
+        std::wcout << ">> ";
         std::getline(std::cin, command);
         if (command.empty()) {
             command = last_command;
@@ -325,12 +325,12 @@ void StepList::execute_with_debugger() {
         auto toks = split_tokens(command);
         if (tokens_match(toks, {"help"}) or tokens_match(toks, {"h"})) {
             output_cur_line = false;
-            std::cout << "help, h               Output this help screen\n"
-                      << "continue, c           Resume program execution\n"
-                      << "break [n], b [n]      Add a breakpoint on a given step\n"
-                      << "print [n], p [n]      Print out a given step\n"
-                      << "step, s               Execute a single step of the program\n"
-                      << "quit, q               Exit the interpreter\n";
+            std::wcout << "help, h               Output this help screen\n"
+                       << "continue, c           Resume program execution\n"
+                       << "break [n], b [n]      Add a breakpoint on a given step\n"
+                       << "print [n], p [n]      Print out a given step\n"
+                       << "step, s               Execute a single step of the program\n"
+                       << "quit, q               Exit the interpreter\n";
         }
         else if (tokens_match(toks, {"continue"}) or tokens_match(toks, {"c"})) {
             paused = false;
@@ -343,10 +343,10 @@ void StepList::execute_with_debugger() {
             StepValue step_val{toks[1]};
             auto step_num = step_val.get_step(vars, node->right->step_num);
             if (step_num == INVALID_STEP) {
-                std::cout << "Undefined variable!\n";
+                std::wcout << "Undefined variable!\n";
             } else {
                 breakpoints.insert(step_num);
-                std::cout << "Breakpoint added for step " << step_num << ".\n";
+                std::wcout << "Breakpoint added for step " << step_num << ".\n";
             }
         } else if (tokens_match(toks, {"print", ""}) or tokens_match(toks, {"p", ""})) {
             output_cur_line = false;
@@ -354,11 +354,12 @@ void StepList::execute_with_debugger() {
             auto step_num = step_val.get_step(vars, node->right->step_num);
 
             if (step_num == INVALID_STEP) {
-                std::cout << "Undefined variable!\n";
+                std::wcout << "Undefined variable!\n";
             } else {
                 auto out_node = get_step(step_num);
-                std::cout << step_num << ". "
-                          << static_cast<std::string>(*out_node) << "\n";
+                auto string = static_cast<std::string>(*out_node);
+                std::wstring wstring{string.begin(), string.end()};
+                std::wcout << step_num << ". " << wstring << "\n";
             }
         } else {
             output_cur_line = false;
