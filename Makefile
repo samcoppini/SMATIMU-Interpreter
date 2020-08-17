@@ -4,10 +4,15 @@ SOURCES=$(wildcard src/*.cpp)
 OBJS=$(SOURCES:src/%.cpp=objs/%.o)
 
 objs/%.o: src/%.cpp
-	$(CC) $< -c -o $@ $(CFLAGS)
+	@mkdir -p objs
+	@echo "Compiling $<..."
+	@$(CC) $< -c -o $@ $(CFLAGS)
 
 all: $(OBJS)
-	$(CC) $(CFLAGS) $(OBJS) -o "smt.exe"
+	@echo "Linking together executable..."
+	@$(CC) $(CFLAGS) $(OBJS) -o "smt.exe"
+	@echo "Finished compiling!"
 
 clean:
-	rm $(OBJS)
+	@echo "Removing object files..."
+	@rm -rf objs
